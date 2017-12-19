@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ule.com.etl.dao.EtlBooksDao">
+
+	<select id="selectEtlBooks" resultType="ule.com.etl.model.EtlBooks">
+		select * from ULEAPP_ITEM_SYNCSRH.TB_YILAI WHERE FLAG != 2
+	</select>
+
+	<select id="selectEtlBook" parameterType="String" resultType="ule.com.etl.model.EtlBooks">
+		select * from ULEAPP_ITEM_SYNCSRH.TB_YILAI where SEQ_ID=#{id}
+	</select>
+
+	<update id="deleteEtlBook" parameterType="String">
+		UPDATE ULEAPP_ITEM_SYNCSRH.TB_YILAI SET FLAG=2 where SEQ_ID=#{id}
+	</update>
+
+	<insert id="submitEtlBook">
+		insert into ULEAPP_ITEM_SYNCSRH.TB_YILAI
+		(SEQ_ID,PROC_NAME,TABLE_NAME,LEV,UPDATE_TIME,UPDATE_USER,FLAG,TABLE_IS_ODS)
+		VALUES(sys_guid(),#{proc_name},
+		#{table_name},#{lev},#{update_time},#{update_user},#{flag},#{table_is_ods})
+	</insert>
+
+	<update id="updateEtlBook">
+		UPDATE ULEAPP_ITEM_SYNCSRH.TB_YILAI SET PROC_NAME=#{proc_name},TABLE_NAME=#{table_name},
+		LEV=#{lev},UPDATE_TIME=#{update_time},UPDATE_USER=#{update_user},FLAG=#{flag},TABLE_IS_ODS=#{table_is_ods}
+		WHERE SEQ_ID=#{seq_id}
+	</update>
+
+	<select id="selectFromEtlBook" resultType="ule.com.etl.model.EtlBooks">
+		select * from ULEAPP_ITEM_SYNCSRH.TB_YILAI WHERE PROC_NAME=#{proc_name} AND TABLE_NAME=#{table_name}
+	</select>
+
+	<update id="updateEtlBookFlag">
+		UPDATE ULEAPP_ITEM_SYNCSRH.TB_YILAI SET LEV=#{lev},UPDATE_TIME=#{update_time},
+		UPDATE_USER=#{update_user},FLAG=1,TABLE_IS_ODS=#{table_is_ods}
+		WHERE SEQ_ID=#{seq_ID}
+	</update>
+
+
+
+	<select id="etlReplace" resultType="ule.com.etl.model.PRO_ETL_STATU">
+        select distinct a.proc_name,b.flag,b.day_time,b.create_time from ULEAPP_ITEM_SYNCSRH.TB_YILAI a
+        left join ULEAPP_ITEM_SYNCSRH.PRO_ETL_STATU b on a.proc_name=b.proc_name where a.flag=1 order by b.day_time,a.proc_name
+	</select>
+
+	<select id="selectProStatu" resultType="ule.com.etl.model.PRO_ETL_STATU">
+		select * from ULEAPP_ITEM_SYNCSRH.PRO_ETL_STATU where proc_name=#{proc_name} and day_time=#{day_time}
+	</select>
+
+	<update id="updateProStatu">
+		update ULEAPP_ITEM_SYNCSRH.PRO_ETL_STATU set flag=0 where proc_name=#{proc_name} and day_time=#{day_time}
+	</update>
+
+	<insert id="insertProStatu">
+		insert into ULEAPP_ITEM_SYNCSRH.PRO_ETL_STATU(id,proc_name,flag,day_time,create_time) values(sys_guid(),#{proc_name},0,#{day_time},sysdate)
+	</insert>
+
+	<select id="selectTabStatu" resultType="ule.com.etl.model.TB_ETL_STATU">
+		SELECT DISTINCT Y.TABLE_NAME,P.FLAG FROM  ULEAPP_ITEM_SYNCSRH.Tb_Yilai Y
+		LEFT JOIN ULEAPP_ITEM_SYNCSRH.TB_ETL_STATU P
+		ON Y.TABLE_NAME=P.TABLE_NAME AND P.DAY_TIME=#{day_time}
+		WHERE Y.FLAG=1 AND Y.PROC_NAME=#{proc_name}
+	</select>
+
+	<update id="updateTabStatu">
+		update ULEAPP_ITEM_SYNCSRH.TB_ETL_STATU set flag=2 where table_name=#{table_name} and day_time=#{day_time}
+	</update>
+
+	<insert id="insertTabStatu">
+		insert into ULEAPP_ITEM_SYNCSRH.TB_ETL_STATU(id,table_name,flag,day_time) values(sys_guid(),#{table_name},2,#{day_time})
+	</insert>
+
+	<!-- 初始化 ALL -->
+	<delete id="initFirstDelete">
+		DELETE FROM ULEAPP_ITEM_SYNCSRH.PRO_ETL_STATU WHERE DAY_TIME=TO_CHAR(SYSDATE-1,'yyyymmdd')
+	</delete>
+	<delete id="initSecondDelete">
+		DELETE FROM ULEAPP_ITEM_SYNCSRH.TB_ETL_STATU WHERE DAY_TIME=TO_CHAR(SYSDATE-1,'yyyymmdd')
+	</delete>
+	<insert id="initFirstInsert">
+		<!--
+		INSERT INTO ULEAPP_ITEM_SYNCSRH.PRO_ETL_STATU SELECT SYS_GUID(),TO_CHAR(SYSDATE-1,'yyyymmdd'),V.proc_NAME,0  FROM (SELECT DISTINCT proc_NAME FROM ULEAPP_ITEM_SYNCSRH.Tb_Yilai WHERE FLAG=1) V
+		-->
+		INSERT INTO ULEAPP_ITEM_SYNCSRH.PRO_ETL_STATU (id, day_time,proc_name,flag,create_time)(SELECT SYS_GUID(),TO_CHAR(SYSDATE - 1, 'yyyymmdd'),V.proc_NAME,0,SYSDATE FROM (SELECT DISTINCT proc_NAME FROM ULEAPP_ITEM_SYNCSRH.Tb_Yilai WHERE FLAG = 1 ) V)
+	</insert>
+	<insert id="initSecondInsert">
+		INSERT INTO ULEAPP_ITEM_SYNCSRH.TB_ETL_STATU SELECT SYS_GUID(),TO_CHAR(SYSDATE-1,'yyyymmdd'),V.TABLE_NAME,0  FROM (SELECT DISTINCT TABLE_NAME FROM ULEAPP_ITEM_SYNCSRH.Tb_Yilai WHERE FLAG=1) V
+	</insert>
+
+	<!-- 初始化 SINGLE -->
+	<delete id="initFirstDeleteSingle">
+		DELETE FROM ULEAPP_ITEM_SYNCSRH.PRO_ETL_STATU WHERE DAY_TIME=#{day_time} AND PROC_NAME = #{proc_name}
+	</delete>
+	<delete id="initSecondDeleteSingle">
+		DELETE FROM ULEAPP_ITEM_SYNCSRH.TB_ETL_STATU WHERE DAY_TIME=#{day_time} AND TABLE_NAME = #{table_name}
+	</delete>
+	<insert id="initFirstInsertSingle">
+		<!--
+		INSERT INTO ULEAPP_ITEM_SYNCSRH.PRO_ETL_STATU SELECT SYS_GUID(),#{day_time},V.proc_name,0  FROM (SELECT DISTINCT PROC_NAME FROM ULEAPP_ITEM_SYNCSRH.Tb_Yilai WHERE FLAG=1 AND PROC_NAME = #{proc_name}) V
+		-->
+		INSERT INTO ULEAPP_ITEM_SYNCSRH.PRO_ETL_STATU (id, day_time,proc_name,flag,create_time)(SELECT SYS_GUID(),TO_CHAR(SYSDATE - 1, 'yyyymmdd'),V.proc_NAME,0,SYSDATE FROM (SELECT DISTINCT proc_NAME FROM ULEAPP_ITEM_SYNCSRH.Tb_Yilai WHERE FLAG = 1 AND PROC_NAME = #{proc_name}) V)
+
+	</insert>
+	<insert id="initSecondInsertSingle">
+		INSERT INTO ULEAPP_ITEM_SYNCSRH.TB_ETL_STATU SELECT SYS_GUID(),#{day_time},V.TABLE_NAME,0  FROM (SELECT DISTINCT TABLE_NAME FROM ULEAPP_ITEM_SYNCSRH.Tb_Yilai WHERE FLAG=1 AND PROC_NAME = #{proc_name}) V
+	</insert>
+
+
+	<!-- 清洗失败的存储过程统计 -->
+	<select id="failProcedure" resultType="ule.com.etl.model.ProcedureFail">
+		SELECT P.DAY_TIME,Y.PROC_NAME,
+		COUNT(Y.TABLE_NAME) table_count,
+		COUNT(CASE WHEN Y.TABLE_IS_ODS=1 OR S.FLAG=2 THEN S.TABLE_NAME ELSE NULL END) count_ods
+		FROM ULEAPP_ITEM_SYNCSRH.TB_YILAI Y
+		INNER JOIN ULEAPP_ITEM_SYNCSRH.PRO_ETL_STATU P ON P.PROC_NAME=Y.PROC_NAME
+		LEFT JOIN ULEAPP_ITEM_SYNCSRH.TB_ETL_STATU S ON Y.TABLE_NAME=S.TABLE_NAME
+		WHERE Y.FLAG=1 AND P.FLAG=0
+		GROUP BY P.DAY_TIME,Y.PROC_NAME
+	</select>
+	<!-- 重新清洗 存储过程-->
+	<update id="cleanProcedure" parameterType="java.lang.String">
+		UPDATE ULEAPP_ITEM_SYNCSRH.TB_ETL_STATU  SET FLAG =2   WHERE TABLE_NAME IN (
+		SELECT Y.TABLE_NAME  FROM ULEAPP_ITEM_SYNCSRH.TB_YILAI Y
+		LEFT JOIN ULEAPP_ITEM_SYNCSRH.TB_ETL_STATU S ON Y.TABLE_NAME=S.TABLE_NAME
+		WHERE  1=1/*(Y.TABLE_IS_ODS=1 OR S.FLAG=2)*/
+		AND PROC_NAME = #{table_name}
+		AND  DAY_TIME = #{day_time}
+		MINUS
+		SELECT Y.TABLE_NAME FROM ULEAPP_ITEM_SYNCSRH.TB_YILAI Y
+		LEFT JOIN ULEAPP_ITEM_SYNCSRH.TB_ETL_STATU S ON Y.TABLE_NAME=S.TABLE_NAME
+		WHERE  /*1=1*/(Y.TABLE_IS_ODS=1 OR S.FLAG=2)
+		AND PROC_NAME = #{table_name}
+		AND  DAY_TIME = #{day_time}) AND FLAG IN (0,1)
+	</update>
+
+	<!-- 根据存储过程名称查询相关表 -->
+	<select id="getTableByProcName" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT TABLE_NAME FROM ULEAPP_ITEM_SYNCSRH.TB_YILAI WHERE PROC_NAME = #{proc_name}
+	</select>
+
+	<!-- 根据存储过程名称查询 -->
+	<select id="getByProcName" parameterType="java.lang.String" resultType="ule.com.etl.model.EtlBooks">
+		SELECT * FROM ULEAPP_ITEM_SYNCSRH.TB_YILAI WHERE PROC_NAME = #{proc_name}
+	</select>
+	<!-- 根据表名查询存储过程-->
+	<select id="getByTableName" parameterType="java.lang.String" resultType="ule.com.etl.model.EtlBooks">
+		SELECT * FROM ULEAPP_ITEM_SYNCSRH.TB_YILAI WHERE TABLE_NAME = #{table_name}
+	</select>
+
+	<!-- 根据表明查询-->
+	<select id="selectEtlBooksByName" resultType="ule.com.etl.model.EtlBooks">
+		select * from ULEAPP_ITEM_SYNCSRH.TB_YILAI WHERE FLAG != 2 AND TABLE_NAME = #{table_name}
+	</select>
+
+	<select id="etlReplaceStatus" resultType="ule.com.etl.model.PRO_ETL_STATU">
+		select distinct a.proc_name,a.table_name,b.flag,b.day_time,b.create_time from ULEAPP_ITEM_SYNCSRH.TB_YILAI a
+		left join ULEAPP_ITEM_SYNCSRH.PRO_ETL_STATU b on a.proc_name=b.proc_name where a.flag=1 and a.proc_name = #{proc_name}
+		and b.day_time between ( TO_NUMBER(TO_CHAR(SYSDATE,'YYYYMMDD')) -10 ) and ( TO_NUMBER(TO_CHAR(SYSDATE,'YYYYMMDD')) -1 )  order by b.day_time,a.proc_name
+	</select>
+
+	<select id="etlReplaceStatusTable" resultType="ule.com.etl.model.PRO_ETL_STATU">
+		select distinct a.proc_name,a.table_name,b.flag,b.day_time,b.create_time from ULEAPP_ITEM_SYNCSRH.TB_YILAI a
+		left join ULEAPP_ITEM_SYNCSRH.PRO_ETL_STATU b on a.proc_name=b.proc_name where a.flag=1 and a.table_name = #{table_name}
+		and b.day_time between ( TO_NUMBER(TO_CHAR(SYSDATE,'YYYYMMDD')) -10 ) and ( TO_NUMBER(TO_CHAR(SYSDATE,'YYYYMMDD')) -1 )  order by b.day_time,a.proc_name
+	</select>
+</mapper>

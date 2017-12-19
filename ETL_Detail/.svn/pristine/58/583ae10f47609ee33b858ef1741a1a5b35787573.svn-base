@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ule.com.etl.dao.UserDao">
+	
+	<select id="getPwd" parameterType="ule.com.etl.model.User" resultType="String">
+		select pwd from ULEAPP_SYNCSRH_ETL.ulebi_user where username=#{username} and flag=0
+	</select>
+	
+</mapper>
+	

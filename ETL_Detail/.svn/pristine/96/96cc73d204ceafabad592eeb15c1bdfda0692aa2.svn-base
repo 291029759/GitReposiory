@@ -1,0 +1,9 @@
+package ule.com.etl.dao;
+
+import ule.com.etl.model.User;
+
+public interface UserDao {
+
+	String getPwd(User user);
+
+}
