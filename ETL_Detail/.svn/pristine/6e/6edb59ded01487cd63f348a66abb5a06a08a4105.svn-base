@@ -1,0 +1,156 @@
+package ule.com.etl.controller;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.alibaba.fastjson.JSONObject;
+
+import ule.com.etl.action.DeleteFile;
+import ule.com.etl.model.EtlBooks;
+import ule.com.etl.model.PRO_ETL_STATU;
+import ule.com.etl.model.TB_ETL_STATU;
+import ule.com.etl.model.User;
+import ule.com.etl.service.EtlBooksService;
+
+@Controller
+public class EtlBooksController {
+	private static Logger log = Logger.getLogger(EtlBooksController.class);
+	private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
+	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+	
+	@Autowired
+	private EtlBooksService etlBooksService;
+	
+	@RequestMapping(value = "etl/etlbooks")
+	@ResponseBody
+	public String etlBooksModel(HttpServletRequest request) {
+		List<EtlBooks> books = etlBooksService.selectEtlBooks();
+		JSONObject obj=new JSONObject();
+		obj.put("Rows", books);
+        obj.put("Total", books.size());
+	
+	   String bString=obj.toJSONString();
+		return bString;
+	}
+
+	@RequestMapping(value = "etl/update")
+	@ResponseBody
+	public ModelAndView update(HttpServletRequest request) {
+		ModelAndView mv = new ModelAndView();
+		String id = request.getParameter("id");
+		EtlBooks book = etlBooksService.selectEtlBook(id);
+
+		mv.addObject("book", book);
+		mv.setViewName("add");
+
+		return mv;
+	}
+
+	@RequestMapping(value = "etl/add")
+	public String add(HttpServletRequest request) {
+		return "add";
+	}
+
+	@RequestMapping(value = "etl/delete")
+	@ResponseBody
+	public String delete(HttpServletRequest request) {
+		String id = request.getParameter("id");
+		etlBooksService.deleteEtlBook(id);
+		return "1";
+	}
+
+	@RequestMapping(value = "etl/submit")
+	public String submit(HttpServletRequest request) {
+		String seq_id = request.getParameter("SEQ_ID");
+		String proc_name = request.getParameter("PROC_NAME");
+		String table_name = request.getParameter("TABLE_NAME");
+		//String levs = request.getParameter("LEV");
+		int lev = 0;
+		/*if (table_name != null) {
+			lev = Integer.parseInt(levs);
+		}*/
+		
+		Date date = new Date(System.currentTimeMillis());
+		String update_time=simpleDateFormat.format(date);
+		
+		User user = (User) request.getSession().getAttribute("user");
+		String update_user = user.getUsername();
+		String flags = request.getParameter("FLAG");
+		String table_is = request.getParameter("TABLE_IS_ODS");
+		int flag = 0;
+		if(flags!=null || flags!= ""){
+			flag = Integer.parseInt(flags);
+		}
+		int table_is_ods=0;
+		if(table_is!=null || table_is!=""){
+			table_is_ods=Integer.parseInt(table_is);
+		}
+		
+		if (seq_id == null || seq_id == "") {
+			EtlBooks etlBook= etlBooksService.selectFromEtlBook(proc_name,table_name);
+			if(etlBook!=null){
+				etlBooksService.updateEtlBookFlag(etlBook.getSEQ_ID(), lev, update_time, update_user,table_is_ods);
+			}else{
+				etlBooksService.submitEtlBook(proc_name, table_name, lev, update_time, update_user, flag,table_is_ods);
+			}
+		} else {
+			etlBooksService.updateEtlBook(seq_id, proc_name, table_name, lev, update_time, update_user, flag,table_is_ods);
+		}
+		return "redirect:etlbooks.jsp";
+	}
+	
+	@RequestMapping(value = "etl/etlReplace")
+	@ResponseBody
+	public ModelAndView etlReplace(HttpServletRequest request) {
+		ModelAndView mv = new ModelAndView();
+		List<PRO_ETL_STATU> lists= etlBooksService.etlReplace();
+		mv.addObject("lists",lists);
+		mv.setViewName("etlReplace");
+		return mv;
+	}
+	
+	@RequestMapping(value = "etl/etlReplaceSubmit")
+	@Transactional
+	public String etlReplaceSubmit(HttpServletRequest request) {
+		String times=request.getParameter("time");
+		int day_time=0;
+		if (times != null || times != "") {
+			day_time=Integer.parseInt(times);
+		}
+		String[] checkbox=request.getParameterValues("checkbox");
+		for(int i=0;i<checkbox.length;i++){
+			PRO_ETL_STATU statu=etlBooksService.selectProStatu(checkbox[i],day_time);
+			if(statu!=null){
+				etlBooksService.updateProStatu(checkbox[i],day_time);
+			}else{
+				etlBooksService.insertProStatu(checkbox[i],day_time);
+			}
+		}
+		for (int i = 0; i < checkbox.length; i++) {
+			List<TB_ETL_STATU> list_tb= etlBooksService.selectTbStatu(checkbox[i], day_time);
+			for (int j = 0; j < list_tb.size(); j++) {
+				if(list_tb.get(j).getFlag()!=null){
+					etlBooksService.updateTabStatu(list_tb.get(j).getTable_name(),day_time);
+				}else{
+					etlBooksService.insertTabStatu(list_tb.get(j).getTable_name(),day_time);
+				}
+			}
+		}
+		//20170725不需要在调脚本和删除文件
+		//DeleteFile.getInstance().delFile(times);
+		
+		return "redirect:etlReplace.do";
+	}
+	
+}

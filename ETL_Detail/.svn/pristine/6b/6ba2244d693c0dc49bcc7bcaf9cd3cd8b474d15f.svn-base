@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ule.com.etl.dao.EtlBooksDao">
+
+	<select id="selectEtlBooks"  resultType="ule.com.etl.model.EtlBooks">
+		select * from ULEAPP_SYNCSRH_ETL.TB_YILAI WHERE FLAG != 2
+	</select>
+	
+	<select id="selectEtlBook" parameterType="String"  resultType="ule.com.etl.model.EtlBooks">
+		select * from ULEAPP_SYNCSRH_ETL.TB_YILAI where SEQ_ID=#{id}
+	</select>
+	
+	<update id="deleteEtlBook" parameterType="String" >
+		UPDATE ULEAPP_SYNCSRH_ETL.TB_YILAI SET FLAG=2 where SEQ_ID=#{id}
+	</update>
+	
+	<insert id="submitEtlBook" >
+		insert into ULEAPP_SYNCSRH_ETL.TB_YILAI
+		(SEQ_ID,PROC_NAME,TABLE_NAME,LEV,UPDATE_TIME,UPDATE_USER,FLAG,TABLE_IS_ODS)
+		VALUES(sys_guid(),#{proc_name},
+		#{table_name},#{lev},#{update_time},#{update_user},#{flag},#{table_is_ods})
+	</insert>
+	
+	<update id="updateEtlBook" >
+		UPDATE ULEAPP_SYNCSRH_ETL.TB_YILAI SET PROC_NAME=#{proc_name},TABLE_NAME=#{table_name},
+		LEV=#{lev},UPDATE_TIME=#{update_time},UPDATE_USER=#{update_user},FLAG=#{flag},TABLE_IS_ODS=#{table_is_ods}
+		WHERE SEQ_ID=#{seq_id}
+	</update>
+	
+	<select id="selectFromEtlBook" resultType="ule.com.etl.model.EtlBooks">
+		select * from ULEAPP_SYNCSRH_ETL.TB_YILAI WHERE PROC_NAME=#{proc_name} AND TABLE_NAME=#{table_name}
+	</select>
+	
+	<update id="updateEtlBookFlag">
+		UPDATE ULEAPP_SYNCSRH_ETL.TB_YILAI SET LEV=#{lev},UPDATE_TIME=#{update_time},
+		UPDATE_USER=#{update_user},FLAG=1,TABLE_IS_ODS=#{table_is_ods}
+		WHERE SEQ_ID=#{seq_ID}
+	</update>
+	
+	<select id="etlReplace" resultType="ule.com.etl.model.PRO_ETL_STATU">
+		select distinct a.proc_name,b.flag,b.day_time from ULEAPP_SYNCSRH_ETL.TB_YILAI a 
+		left join ULEAPP_SYNCSRH_ETL.PRO_ETL_STATU b on a.proc_name=b.proc_name where a.flag=1 order by b.day_time,a.proc_name
+	</select>
+	
+	<select id="selectProStatu" resultType="ule.com.etl.model.PRO_ETL_STATU">
+		select * from ULEAPP_SYNCSRH_ETL.PRO_ETL_STATU where proc_name=#{proc_name} and day_time=#{day_time}
+	</select>
+	
+	<update id="updateProStatu" >
+		update ULEAPP_SYNCSRH_ETL.PRO_ETL_STATU set flag=0 where proc_name=#{proc_name} and day_time=#{day_time}
+	</update>
+	
+	<insert id="insertProStatu">
+		insert into ULEAPP_SYNCSRH_ETL.PRO_ETL_STATU(id,proc_name,flag,day_time) values(sys_guid(),#{proc_name},0,#{day_time})
+	</insert>
+	
+	<select id="selectTabStatu" resultType="ule.com.etl.model.TB_ETL_STATU">
+		SELECT DISTINCT Y.TABLE_NAME,P.FLAG FROM  ULEAPP_SYNCSRH_ETL.Tb_Yilai Y
+		LEFT JOIN ULEAPP_SYNCSRH_ETL.TB_ETL_STATU P 
+		ON Y.TABLE_NAME=P.TABLE_NAME AND P.DAY_TIME=#{day_time}
+		WHERE Y.FLAG=1 AND Y.PROC_NAME=#{proc_name}
+	</select>
+	
+	<update id="updateTabStatu" >
+		update ULEAPP_SYNCSRH_ETL.TB_ETL_STATU set flag=2 where table_name=#{table_name} and day_time=#{day_time}
+	</update>
+	
+	<insert id="insertTabStatu">
+		insert into ULEAPP_SYNCSRH_ETL.TB_ETL_STATU(id,table_name,flag,day_time) values(sys_guid(),#{table_name},2,#{day_time})
+	</insert>
+	
+</mapper>
+	
