@@ -4,10 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.ibatis.annotations.Param;
-import ule.com.etl.model.EtlBooks;
-import ule.com.etl.model.PRO_ETL_STATU;
-import ule.com.etl.model.ProcedureFail;
-import ule.com.etl.model.TB_ETL_STATU;
+import ule.com.etl.model.*;
 
 public interface EtlBooksService {
 	List<EtlBooks> selectEtlBooks();
@@ -17,14 +14,14 @@ public interface EtlBooksService {
 	void deleteEtlBook(String id);
  
 	void submitEtlBook(String proc_name, String table_name, int lev, String update_time,
-			String update_user, int flag,int table_is_ods);
+			String update_user, int flag,int table_is_ods,String result_table);
 
 	void updateEtlBook(String seq_id, String proc_name, String table_name, int lev, String update_time,
-			String update_user, int flag,int table_is_ods);
+			String update_user, int flag,int table_is_ods,String result_table);
 
 	EtlBooks selectFromEtlBook(String proc_name, String table_name);
 
-	void updateEtlBookFlag(String seq_ID, int lev, String update_time, String update_user, int table_is_ods);
+	void updateEtlBookFlag(String seq_ID, int lev, String update_time, String update_user, int table_is_ods,String result_table);
 
 	List<PRO_ETL_STATU> etlReplace();
 
@@ -34,15 +31,15 @@ public interface EtlBooksService {
 
 	void insertProStatu(String proc_name, int day_time);
 	
-	List<TB_ETL_STATU> selectTbStatu(String proc_name,int day_time);
-	
-	void updateTabStatu(String table_name, int day_time);
+	List<TB_ETL_STATU> selectTabStatu(String proc_name,int day_time);
 
-	void insertTabStatu(String table_name, int day_time);
+	void updateTabStatu(int lev ,String table_name, int day_time);
+
+	void insertTabStatu(int lev ,String table_name, int day_time);
 	/**
 	 * 存储过程初始化  ALL
 	 */
-	void initFirstDelete();
+	void firstInitDelete();
 	void initSecondDelete();
 	void initFirstInsert();
 	void initSecondInsert();
@@ -71,9 +68,16 @@ public interface EtlBooksService {
 	 * select by tablename
 	 */
 	List<EtlBooks> selectEtlBooksByName(String table_name);
+	List<EtlBooks> selectEtlBooksByProcName(String proc_name);
+	List<EtlBooks> selectEtlBooksByResultTable(String result_table);
+
 	List<PRO_ETL_STATU> etlReplaceStatus(String proc_name);
 
-	//List<PRO_ETL_STATU> getByTableAllName(String proc_name);
 	Set<String> getByProcAllName(String proc_name);
 	List<PRO_ETL_STATU> etlReplaceStatusTable(String table_name);
+
+	/**
+	 * TASK_INFO
+	 */
+	List<TRACK_TASK_INFO> allTaskInfos();
 }

@@ -14,7 +14,6 @@
 	<context:component-scan base-package="ule.com.etl.dao" />
 	<context:component-scan base-package="ule.com.etl.service" />
 	<context:component-scan base-package="ule.com.etl.service.impl" />
-
 	<bean
 		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
 		<property name="messageConverters">
@@ -30,8 +29,6 @@
 			</list>
 		</property>
 	</bean>
-
-
 	<!-- 属性文件读入 -->
 	<bean id="propertyConfigurer"
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -42,8 +39,6 @@
 		</property>
 		<property name="fileEncoding" value="utf-8" />
 	</bean>
-
-
 	<!-- ==========================数据源配置开始================================ -->
 	<!-- 配置数据源 -->
 	<bean id="dbSource" class="org.apache.commons.dbcp.BasicDataSource">
@@ -60,9 +55,7 @@
 			<value>${jdbc.pass}</value>
 		</property>
 	</bean>
-
 	<!-- ==========================数据源配置结束================================ -->
-
 	<!-- mybatis+spring -->
 	<bean id="dbSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="dbSource" />

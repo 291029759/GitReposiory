@@ -15,8 +15,9 @@
 	</head>
 <body>
 
-<span style="color: #1542B3 " >请输入要查询的表名称:</span>&nbsp;<input type="text" name="table_name" id="table_name"> &nbsp;<button id ="btnLoad">查询</button><br><br>
-
+<span style="color: #1542B3 " >请输入要查询的依赖表名称 :  </span>&nbsp;<input type="text" name="table_name" id="table_name"> &nbsp;<button id ="btnLoad">         表查询</button><br><br>
+<span style="color: #1542B3 " >请输入要查询的存储过程名称:</span>&nbsp;<input type="text" name="table_name" id="proc_search"> &nbsp;<button id ="btnLoadProc">    存储过程查询</button><br><br>
+<span style="color: #1542B3 " >请输入要查询的结果表名称 :  </span>&nbsp;<input type="text" name="table_name" id="result_search"> &nbsp;<button id ="btnLoadResult">结果表查询</button><br><br>
 <script type="text/javascript">
     var d = new Date();
     var id = "";
@@ -40,6 +41,9 @@
                     }
                 }
             }, {
+                display : "结果表",
+                name : "rESULT_TABLE"
+            } , {
                 display : "是否启用",
                 name : "fLAG",
                 render : function(rowData) {
@@ -50,15 +54,12 @@
                     }
                 }
             }, {
-                display : "优先等级",
-                name : "priorities"
-            }, {
                 display : "更新时间",
                 name : "uPDATE_TIME"
             }, {
                 display : "更新人",
                 name : "uPDATE_USER"
-            } ],
+            }],
             toolbar : {
                 items : [ {
                     text : '增加',
@@ -105,7 +106,7 @@
                     op : 'find',
                     img : '/js_css/ligerUI/skins/icons/search.gif'
                 },{
-                    text : '返回',
+                    text : '刷新返回',
                     click : itemclick,
                     op : 'goback',
                     img : '/js_css/ligerUI/skins/icons/home.gif'
@@ -124,6 +125,26 @@
 					id = rowdata.sEQ_ID;
 				}
         });
+        $("#btnLoadResult").click(function () {
+            var result_table = $("#result_search").val();
+            grid.set({
+                dataAction : "local",
+                //数据请求地址
+                url : '/etl/etlbooks.do?d=' + d.getTime(),
+                async : true,
+                method : 'get',
+                //数据书否分页，默认为true
+                usePager : true,
+                pageSize : "50",//分页页面大小
+                rownumbers : true,
+                onSelectRow : function(rowdata, rowindex) {
+                    id = rowdata.sEQ_ID;
+                },
+                parms:[{name:"result_table",value:result_table}]
+            });
+            grid.loadData();
+        });
+
         $("#btnLoad").click(function () {
             var table_name = $("#table_name").val();
             grid.set({
@@ -140,6 +161,25 @@
                     id = rowdata.sEQ_ID;
                 },
                 parms:[{name:"table_name",value:table_name}]
+            });
+            grid.loadData();
+        });
+        $("#btnLoadProc").click(function () {
+            var proc_name = $("#proc_search").val();
+            grid.set({
+                dataAction : "local",
+                //数据请求地址
+                url : '/etl/etlbooks.do?d=' + d.getTime(),
+                async : true,
+                method : 'get',
+                //数据书否分页，默认为true
+                usePager : true,
+                pageSize : "50",//分页页面大小
+                rownumbers : true,
+                onSelectRow : function(rowdata, rowindex) {
+                    id = rowdata.sEQ_ID;
+                },
+                parms:[{name:"proc_name",value:proc_name}]
             });
             grid.loadData();
         })
@@ -180,7 +220,7 @@
                 location.href = "/etl/recleaning.jsp";
             }
             if (item.op == "sing") {
-                location.href = "/etl/singleInit.jsp";
+                location.href = "/etl/singleProcInit.jsp";
             }
             if (item.op == "find") {
                 location.href = "/etl/findTable.jsp";

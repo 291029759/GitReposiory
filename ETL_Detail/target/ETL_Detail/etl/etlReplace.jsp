@@ -6,18 +6,26 @@
 	<title> ETL管理平台</title>
 </head>
 <body>
-<%--<script TYPE="text/javascript">
+<script TYPE="text/javascript">
     function toVaild() {
-        var input_data = document.getElementById("time").getElementsByTagName("input")
-        alert('input data is  ...'+input_data)
-        if (input_data.length ==0 || input_data == ""){
-            alert("+++++++++++++")
-			return false ;
-		}
+        var myproc = document.getElementsByTagName("input")
+        for(var i=0 ;i<myproc.length;i++){
+            if(myproc[i].type == 'text'){
+                if(myproc[i].value == ''){
+                    alert(' 请输入时间')
+                    return false ;
+                }
+            }
+        }
     }
-</script>--%>
+</script>
 	<form action="etlReplaceSubmit.do" method="post" onsubmit="return toVaild()">
-		<table border="1" cellspacing="0" id="myproc">
+		重新清洗时间：
+		<input type="text" name="time" id="time">
+		<input type="submit" value="提交"> &nbsp;
+		<input type="reset"	value="重置"> &nbsp;
+		<a href="etlbooks.jsp"><img src="/js_css/ligerUI/skins/icons/home.gif"/>返回</a>
+		<table border="1" cellspacing="0" id="proc_name">
 			<tr>
 				<th></th>
 				<th>ULE_DM/DW.存储过程名称</th>
@@ -52,13 +60,9 @@
 					<td><fmt:formatDate value="${list.create_time}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
 				</tr>
 			</c:forEach>
+
 		</table>
-		重新清洗时间：
-		<input type="text" name="time" id="time">
 		<br>
-		<input type="submit" value="提交"> &nbsp;
-		<input type="reset"	value="重置"> &nbsp;
-		<a href="etlbooks.jsp"><img src="/js_css/ligerUI/skins/icons/home.gif"/>返回</a>
 	</form>
 </body>
 </html>

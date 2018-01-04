@@ -6,18 +6,19 @@
 	<title> ETL管理平台</title>
 </head>
 <body>
-<!--
 <script TYPE="text/javascript">
     function toVaild() {
-        var input_data = document.getElementById("time").getElementsByTagName("input")
-        alert('input data is  ...'+input_data)
-        if (input_data.length ==0 || input_data == ""){
-            alert("+++++++++++++")
-			return false ;
-		}
+        var myproc = document.getElementsByTagName("input")
+        for(var i=0 ;i<myproc.length;i++){
+            if(myproc[i].type == 'text'){
+                if(myproc[i].value == ''){
+                    alert(' 请输入时间')
+                    return false ;
+                }
+            }
+        }
     }
 </script>
--->
 	<form action="etlReplaceSubmit.do" method="post" onsubmit="return toVaild()">
 		<table border="1" cellspacing="0" id="myproc">
 			<tr>

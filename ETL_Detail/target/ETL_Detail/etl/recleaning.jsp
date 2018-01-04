@@ -67,8 +67,7 @@
         function addTr2(mytable, row) {
             var trHtml = "<tr align='center'> <input type=\"hidden\" name=\"SEQ_ID\">" +
                 "<td style='width: 10%'><input type='checkbox' name='ckb' /></td>" +
-                "<td class='tesla'><input type='text'  name=\"DATABASE_NAME\" /></td>" +
-                "<td class='tesla'><input type='text'  name=\"TABLE_NAME\"/></td>" +
+                "<td class='tesla'><input type='text'  name=\"PROC_NAME\"/></td>" +
                 "<td class='tesla'><input type='text'  name=\"DAY_TIME\"/></td>" +
                 "</tr>";
             addTr(mytable, row, trHtml);
@@ -105,14 +104,12 @@
     <table border="1px #ooo" id="mytable" cellpadding="0" cellspacing="0" width="30%">
         <tr align="center">
             <td style="width: 10%"><input id="allCkb" type="checkbox"/></td>
-            <td>数据库名称</td>
             <td>重新清洗存储过程名称</td>
             <td>重新清洗时间</td>
         </tr>
         <tr align="center">
             <td style="width: 10%"><input type="checkbox" name="checkbox"></td>
-            <td class="tesla"><input type='text' name="DATABASE_NAME"></td>
-            <td ><input  type="text" name="TABLE_NAME"></td>
+            <td class="tesla"><input type='text' name="PROC_NAME"></td>
             <td ><input  type="text" name="DAY_TIME"></td>
         </tr>
     </table>

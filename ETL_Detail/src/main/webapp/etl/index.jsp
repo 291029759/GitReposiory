@@ -67,6 +67,7 @@
                     <li><a class="l-link" onclick="openUrl('etlbooks.jsp')">清洗依赖管理</a></li>
                     <li><a class="l-link" onclick="openUrl('etlReplace.do')">存储过程重洗管理</a></li>
                     <li><a class="l-link" onclick="openUrl('etlUsers.jsp')">用户管理</a></li>
+                    <li><a class="l-link" onclick="openUrl('allTaskInfos.jsp')">执行日志</a></li>
                     <%-- <li><a class="l-link" href="/etl/etlReplace.jsp">存储过程重洗管理</a></li>--%>
                 </ul>
             </div>

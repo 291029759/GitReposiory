@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ule.com.etl.dao.ElasticSearchDao">
+
+	<select id="getWHDDSByDay" resultType="ule.com.etl.model.WarehouseDayDetailSearch">
+		select * from ULEDM_DATA_2017.RF_WAREHOUSE_DAY_DETAIL_SEARCH WHERE D_DAYID = #{D_DAYID};
+	</select>
+
+</mapper>

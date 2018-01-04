@@ -10,6 +10,7 @@
 	<mappers>
 		<mapper resource="mapper/etl/EtlBooksMapper.xml" />
 		<mapper resource="mapper/user/UserMapper.xml" />
+		<mapper resource="mapper/elasticsearch/ElasticSearchMapper.xml" />
 	</mappers>
 </configuration>
 

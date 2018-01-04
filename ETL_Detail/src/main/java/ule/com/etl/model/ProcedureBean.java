@@ -17,4 +17,5 @@ public class ProcedureBean {
     private int LEV;
     private int FLAG;
     private int TABLE_IS_ODS;
+    private String RESULT_TABLE ;
 }

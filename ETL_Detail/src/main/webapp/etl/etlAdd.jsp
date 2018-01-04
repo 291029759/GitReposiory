@@ -69,7 +69,7 @@
                 "<td style='width: 10%'><input type='checkbox' name='ckb' /></td>" +
                 "<td class='tesla'><input type='text'  name=\"PROC_NAME\" /></td>" +
                 "<td class='tesla'><input type='text'  name=\"TABLE_NAME\"/></td>" +
-                "<td class='tesla'><input type='text'  name=\"PRIORITY\"/></td>" +
+                "<td class='tesla'><input type='text'  name=\"LEV\"/></td>" +
                 "<td class='tesla'><select name=\"TABLE_IS_ODS\" style=\"width:100px\">\n" +
                 "                    <option value=\"1\" >是</option>\n" +
                 "                    <option value=\"0\" selected=\"selected\">否</option>\n" +
@@ -77,7 +77,8 @@
                 "<td class='tesla'><select name=\"FLAG\" style=\"width:100px\">\n" +
                 "                    <option value=\"1\" >是</option>\n" +
                 "                    <option value=\"0\" selected=\"selected\">否</option>\n" +
-                "                </select></td></tr>";
+                "                </select></td>"+
+                "<td class='tesla'><input type='text'  name=\"RESULT_TABLE\"/></td></tr>" ;
             addTr(mytable, row, trHtml);
         }
         function delTr2() {
@@ -116,25 +117,29 @@
             <td>优先级</td>
             <td>是否ODS表</td>
             <td>是否启用</td>
+            <td>结果表</td>
         </tr>
         <tr align="center">
             <input type="hidden" name="id" value="${book.id}">
             <td style="width: 10%"><input type="checkbox" name="checkbox"></td>
             <td class="tesla"><input type='text' name="PROC_NAME"></td>
             <td class="tesla"><input  type="text" name="TABLE_NAME"></td>
-            <td class="tesla"><input  type="text" name="PRIORITY"></td>
+            <td class="tesla"><input  type="text" name="LEV"></td>
+
             <td class="tesla">
                 <select name="TABLE_IS_ODS" style="width:100px">
                     <option value="1" >是</option>
                     <option value="0" selected="selected">否</option>
                 </select>
             </td >
+
             <td class="tesla">
                 <select name="FLAG" style="width:100px">
                     <option value="1" >是</option>
                     <option value="0" selected="selected">否</option>
                 </select>
             </td>
+            <td class="tesla"><input  type="text" name="RESULT_TABLE"></td>
         </tr>
     </table>
     <input type="submit" value="提交"> &nbsp; <input type="reset" value="重置"> &nbsp;

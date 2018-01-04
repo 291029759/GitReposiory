@@ -56,7 +56,6 @@ public class UserController {
         int maxId = userService.getMaxId();
         String username = request.getParameter("username");
         User user = userService.getUserByName(username);
-        System.out.println("username -------" + user);
         if(user != null){
             return "false" ;
         }else {
